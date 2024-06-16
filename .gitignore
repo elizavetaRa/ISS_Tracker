@@ -1,0 +1,24 @@
+# Ignore the result of the compilation
+main
+
+# Ignore object files and compiled binaries
+*.o
+*.a
+*.so
+*.out
+*.exe
+
+# Ignore executables named after your source files (e.g., main)
+main
+
+# Ignore temporary files created by editors or the operating system
+*~
+*.swp
+.DS_Store
+
+# Ignore log files
+*.log
+
+# Ignore Visual Studio Code directories and files
+.vscode/
+*.code-workspace
