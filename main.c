@@ -122,15 +122,14 @@ static gboolean addIssLocationPoint()
     {
         track = osm_gps_map_track_new();
         osm_gps_map_set_center(OSM_GPS_MAP(map), float_lat, float_lon);
+        g_object_set(track, "editable", FALSE, NULL);
+        osm_gps_map_track_add(OSM_GPS_MAP(map), track);
     }
 
     // add newly retrieved tracking point to the map
     point = osm_gps_map_point_new_degrees(float_lat,
                                           float_lon);
     osm_gps_map_track_add_point(track, point);
-
-    g_object_set(track, "editable", FALSE, NULL);
-    osm_gps_map_track_add(OSM_GPS_MAP(map), track);
 
     return TRUE;
 }
