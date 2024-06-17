@@ -123,6 +123,7 @@ static gboolean addIssLocationPoint()
     {
         track = osm_gps_map_track_new();
         osm_gps_map_set_center(OSM_GPS_MAP(map), float_lat, float_lon);
+        osm_gps_map_set_zoom(OSM_GPS_MAP(map), 3);
         g_object_set(track, "editable", FALSE, NULL);
         osm_gps_map_track_add(OSM_GPS_MAP(map), track);
     }
@@ -157,8 +158,7 @@ static void activate(GtkApplication *app, gpointer user_data)
         return;
     }
 
-    // Create a window, a map container, a map, A map layer with zoom
-    // and a label instances
+    // Create UI elements
     window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
     map_container = GTK_WIDGET(gtk_builder_get_object(builder, "map_container"));
     iss_location_label = GTK_WIDGET(gtk_builder_get_object(builder, "iss_location_label"));
