@@ -27,6 +27,12 @@
             <property name="hexpand">TRUE</property>
           </object>
         </child>
+        <child>
+          <object class="GtkButton" id="recenter_button">
+            <property name="label">Recenter ISS location</property>
+            <property name="halign">center</property>
+          </object>
+        </child>
       </object>
     </child>
   </object>

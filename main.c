@@ -17,6 +17,7 @@ OsmGpsMapPoint *point;
 GtkWidget *map;
 OsmGpsMapLayer *osd;
 GtkWidget *iss_location_label;
+GObject *recenter_button;
 static char *response = NULL;
 
 // Callback function to handle CURL response
@@ -134,6 +135,12 @@ static gboolean addIssLocationPoint()
     return TRUE;
 }
 
+// Recenter the map to the current ISS location
+static void recenter_map(GtkWidget *widget, gpointer data)
+{
+    osm_gps_map_set_center(OSM_GPS_MAP(map), float_lat, float_lon);
+}
+
 static void activate(GtkApplication *app, gpointer user_data)
 {
     GtkBuilder *builder;
@@ -179,6 +186,9 @@ static void activate(GtkApplication *app, gpointer user_data)
                        NULL);
     osm_gps_map_layer_add(OSM_GPS_MAP(map), osd);
     g_object_unref(G_OBJECT(osd));
+
+    recenter_button = gtk_builder_get_object(builder, "recenter_button");
+    g_signal_connect(recenter_button, "clicked", G_CALLBACK(recenter_map), NULL);
 
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
