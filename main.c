@@ -15,6 +15,7 @@ float float_lon;
 OsmGpsMapTrack *track;
 OsmGpsMapPoint *point;
 GtkWidget *map;
+OsmGpsMapLayer *osd;
 GtkWidget *iss_location_label;
 static char *response = NULL;
 
@@ -150,7 +151,8 @@ static void activate(GtkApplication *app, gpointer user_data)
         return;
     }
 
-    // Create a window, a map container, a map and a label instances
+    // Create a window, a map container, a map, A map layer with zoom
+    // and a label instances
     window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
     map_container = GTK_WIDGET(gtk_builder_get_object(builder, "map_container"));
     iss_location_label = GTK_WIDGET(gtk_builder_get_object(builder, "iss_location_label"));
@@ -165,6 +167,19 @@ static void activate(GtkApplication *app, gpointer user_data)
     gtk_widget_set_hexpand(map, TRUE);
     gtk_widget_set_vexpand(map, TRUE);
     gtk_container_add(GTK_CONTAINER(map_container), map);
+
+    osd = g_object_new(OSM_TYPE_GPS_MAP_OSD,
+                       "show-scale", TRUE,
+                       "show-coordinates", FALSE,
+                       "show-crosshair", TRUE,
+                       "show-dpad", FALSE,
+                       "show-zoom", TRUE,
+                       "show-gps-in-dpad", FALSE,
+                       "show-gps-in-zoom", FALSE,
+                       "dpad-radius", 30,
+                       NULL);
+    osm_gps_map_layer_add(OSM_GPS_MAP(map), osd);
+    g_object_unref(G_OBJECT(osd));
 
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
