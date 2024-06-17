@@ -15,6 +15,7 @@ float float_lon;
 OsmGpsMapTrack *track;
 OsmGpsMapPoint *point;
 GtkWidget *map;
+GtkWidget *iss_location_label;
 static char *response = NULL;
 
 // Callback function to handle CURL response
@@ -75,8 +76,10 @@ static gboolean getIssLocation()
 
                     printf("Float Latitude: %f, Float Longitude: %f\n", float_lat, float_lon);
 
-                    // Example usage in your application context (not included in this snippet)
-                    // osm_gps_map_set_center_and_zoom(OSM_GPS_MAP(widgets->map), lat, lon, 2);
+                    // Update label with current ISS location
+                    gchar *location_text = g_strdup_printf("Current ISS Location: Latitude: %f, Longitude: %f", float_lat, float_lon);
+                    gtk_label_set_text(GTK_LABEL(iss_location_label), location_text);
+                    g_free(location_text);
                 }
                 else
                 {
@@ -120,12 +123,12 @@ static gboolean addIssLocationPoint()
         osm_gps_map_set_center(OSM_GPS_MAP(map), float_lat, float_lon);
     }
 
+    // add newly retrieved tracking point to the map
     point = osm_gps_map_point_new_degrees(float_lat,
                                           float_lon);
     osm_gps_map_track_add_point(track, point);
 
     g_object_set(track, "editable", FALSE, NULL);
-
     osm_gps_map_track_add(OSM_GPS_MAP(map), track);
 
     return TRUE;
@@ -133,28 +136,51 @@ static gboolean addIssLocationPoint()
 
 static void activate(GtkApplication *app, gpointer user_data)
 {
-
+    GtkBuilder *builder;
     GtkWidget *window;
+    GtkWidget *map_container;
+    GError *error = NULL;
 
-    window = gtk_application_window_new(app);
+    // Construct a GtkBuilder instance and load our UI description
+    builder = gtk_builder_new();
+    if (gtk_builder_add_from_file(builder, "builder.ui", &error) == 0)
+    {
+        g_printerr("Error loading file: %s\n", error->message);
+        g_clear_error(&error);
+        return;
+    }
+
+    // Create a window, a map container, a map and a label instances
+    window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
+    map_container = GTK_WIDGET(gtk_builder_get_object(builder, "map_container"));
+    iss_location_label = GTK_WIDGET(gtk_builder_get_object(builder, "iss_location_label"));
+
+    if (!GTK_IS_CONTAINER(map_container))
+    {
+        g_printerr("map_container is not a valid GTK container\n");
+        return;
+    }
+
     map = osm_gps_map_new();
+    gtk_widget_set_hexpand(map, TRUE);
+    gtk_widget_set_vexpand(map, TRUE);
+    gtk_container_add(GTK_CONTAINER(map_container), map);
 
-    osm_gps_map_set_zoom(OSM_GPS_MAP(map), 4);
-    gtk_container_add(GTK_CONTAINER(window), map);
+    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    gtk_window_set_title(GTK_WINDOW(window), "ISS Live Location");
-    gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
     gtk_widget_show_all(window);
 
+    // Initially call ISS location API and then call every 5 seconds
     addIssLocationPoint();
-    g_timeout_add_seconds(5, addIssLocationPoint, window);
+    g_timeout_add_seconds(5, addIssLocationPoint, NULL);
 }
 
 int main(int argc, char **argv)
 {
-
     GtkApplication *app;
     int status;
+
+    gtk_init(&argc, &argv);
 
     app = gtk_application_new("com.example.iss-tracker", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
