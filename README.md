@@ -2,6 +2,9 @@
 
 This is a simple GTK application that uses `osmgpsmap` to display maps and tracks the current location of the ISS using the [Open Notify](http://api.open-notify.org/iss-now.json) API.
 
+![Demo](https://github.com/elizavetaRa/ISS_Tracker/blob/main/Demo.gif)
+
+
 ## Prerequisites
 
 Before you can compile and run this application, you need to have the following software installed:
